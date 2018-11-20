@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>历史人物活动轨迹</title>
+    <link rel="stylesheet" href="http://cdn.bootcss.com/leaflet/0.7.7/leaflet.css">
+	<link rel="shortcut icon" href="./img/xie.bmp" type="image/x-icon" />
+    <style>
+        html, body, #map {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<script src="./src/leaflet.js"></script>
+<script src="./src/leaflet-echarts.js"></script>
+<script src="./lib/echarts.source.js"></script>
+<script src="http://cdn.bootcss.com/jquery/1.11.0/jquery.min.js"></script>
+<script>
+    var map = L.map('map');
+    var baseLayers = {
+        "高德地图": L.tileLayer('http://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+            subdomains: "1234"
+        }),
+        '高德影像': L.layerGroup([L.tileLayer('http://webst0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}', {
+            subdomains: "1234"
+        }), L.tileLayer('http://t{s}.tianditu.cn/DataServer?T=cta_w&X={x}&Y={y}&L={z}', {
+            subdomains: "1234"
+        })]),
+        
+        'GeoQ灰色底图': L.tileLayer('http://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineStreetPurplishBlue/MapServer/tile/{z}/{y}/{x}').addTo(map)
+    };
+    L.tileLayer('https://a.tiles.mapbox.com/v3/foursquare.map-0y1jh28j/{z}/{x}/{y}.png', {
+        attribution: 'Map &copy; Pacific Rim Coordination Center (PRCC).  Certain data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
+        key: 'BC9A493B41014CAABB98F0471D759707',
+        styleId: 22677
+    });
+    var layercontrol = L.control.layers(baseLayers, {
+        position: "topleft"
+    }).addTo(map);
+    map.setView(L.latLng(37.550339, 104.114129), 4);
+
+    var overlay = new L.echartsLayer(map, echarts);
+    var chartsContainer=overlay.getEchartsContainer();
+    var myChart=overlay.initECharts(chartsContainer);
+    window.onresize = myChart.onresize;
+    var option = {
+    color: ['gold','aqua','lime'],
+    title : {
+        text: '谢良琦 生平主要生活工作地点',
+        subtext:'数据来源于历史记载',
+        x:'center',
+        textStyle : {
+            color: '#fff'
+        }
+    },
+    tooltip : {
+        trigger: 'item',
+        formatter: '{b}'
+    },
+    legend: {
+        orient: 'vertical',
+        x:'left',
+		y: 'bottom',
+        data:['桂林桥渡To淳安', '淳安To河北蠡县', '河北蠡县To常州', '常州To宜兴', '宜兴To延平', '延平To桂林桥渡'],
+        selectedMode: 'single',
+        selected:{//左上角显示几个途径线路,数值显示年份
+            '桂林桥渡To淳安' : true,
+            '淳安To河北蠡县' : true,
+            '河北蠡县To常州' : true,
+            '常州To宜兴' : true,
+            '宜兴To延平' : true,
+			'延平To桂林桥渡' : true
+        },
+        textStyle : {
+            color: '#fff'
+        }
+    },
+    toolbox: {
+        show : false,
+        orient : 'vertical',
+        x: 'right',
+        y: 'center',
+        feature : {
+            mark : {show: true},
+            dataView : {show: true, readOnly: false},
+            restore : {show: true},
+            saveAsImage : {show: true}
+        }
+    },
+    
+    series : [
+        {//虚线显示生平所有站-站主要线路，这里还缺少小的一些路线，需要从文章诗词中记录
+            name: '全国',
+            type: 'map',
+            roam: true,
+            hoverable: false,
+            mapType: 'none',
+            itemStyle:{
+                normal:{
+                    borderColor:'rgba(100,149,237,1)',
+                    borderWidth:0.5,
+                    areaStyle:{
+                        color: '#1b1b1b'
+                    }
+                }
+            },
+            data:[],
+            markLine : {//虚线显示所有站-站线路
+                smooth:true,
+                symbol: ['none', 'circle'],  
+                symbolSize : 1,
+                itemStyle : {
+                    normal: {
+                        color:'#fff',
+                        borderWidth:1,
+                        borderColor:'rgba(30,144,255,0.5)'
+                    }
+                },
+                data : [
+                    [{name:'桂林桥渡'},{name:'淳安'}],
+                    [{name:'淳安'},{name:'河北蠡县'}],
+                    [{name:'河北蠡县'},{name:'常州'}],
+                    [{name:'常州'},{name:'宜兴'}],
+                    [{name:'宜兴'},{name:'延平'}],
+                    [{name:'延平'},{name:'桂林桥渡'}]
+                ],
+            },
+            geoCoord: {//1626,[1651,1655,1657,1759,1665],1671
+                
+                '桂林桥渡': [111.007295,25.977905],	
+                '北京': [116.404004,39.91546],
+                '浙江': [120.137115,30.256077],
+                '新疆阿尔泰': [88.150174,47.809178],
+                '湖南': [112.94975,28.235042],
+				'崖州感恩县': [108.67689,19.097112],
+				'四川省黔江': [108.777471,29.539286],
+				'河北省永平': [118.899271,39.897994],
+				'天津': [117.178279,39.152191],
+				'山东': [117.026435,36.67742],
+				'扬州': [119.419251,32.400703],
+				'淳安': [119.04833,29.615648],
+				'河北蠡县': [115.590481,38.495188],
+				'常州': [119.980563,31.817432],
+				'宜兴': [119.829763,31.346217],
+				'延平': [118.188649,26.643807]
+            }
+        },
+        {//直观箭头流向显示几个出发的线路-这里可以提供一个查询或者选择站的功能，来突出某一个小站或者一个区域的流向
+            name: '桂林桥渡To淳安',
+            type: 'map',
+            mapType: 'none',
+            data:[],
+            markLine : {//根据出发的线路更新显示效果
+                smooth:true,
+                effect : {//显示的效果设置
+                    show: true,
+                    scaleSize: 1,//线粗
+                    period: 15, //线闪的频率，越大显示越慢
+                    color: '#fff',
+                    shadowBlur: 10
+                },
+                itemStyle : {
+                    normal: {
+                        borderWidth:1,
+                        lineStyle: {
+                            type: 'solid',
+                            shadowBlur: 10
+                        }
+                    }
+                },
+                data : [
+                    [{name:'桂林桥渡'}, {name:'淳安',value:1651}]
+                ]
+            },
+            markPoint : {//根据出发的线路更新显示效果
+                symbol:'emptyCircle',
+                symbolSize : function (v){
+                    return 4
+                },
+                effect : {
+                    show: true,
+                    shadowBlur : 0
+                },
+                itemStyle:{
+                    normal:{
+                        label:{show:false}
+                    },
+                    emphasis: {
+                        label:{position:'top'}
+                    }
+                },
+                data : [
+                    {name:'淳安',value:1651}
+                ]
+            }
+        },
+        {
+            name: '淳安To河北蠡县',
+            type: 'map',
+            mapType: 'none',
+            data:[],
+            markLine : {//根据站出发的线路更新显示效果
+                smooth:true,
+                effect : {//显示的效果设置
+                    show: true,
+                    scaleSize: 1,//线粗
+                    period: 20, //线闪的频率，越大显示越慢
+                    color: '#fff',
+                    shadowBlur: 10
+                },
+                itemStyle : {
+                    normal: {
+                        borderWidth:1,
+                        lineStyle: {
+                            type: 'solid',
+                            shadowBlur: 10
+                        }
+                    }
+                },
+                data : [
+                    [{name:'淳安'}, {name:'河北蠡县',value:1655}]
+                ]
+            },
+            markPoint : {//根据站出发的线路更新显示效果
+                symbol:'emptyCircle',
+                symbolSize : function (v){
+                    return 3
+                },
+                effect : {
+                    show: true,
+                    shadowBlur : 0
+                },
+                itemStyle:{
+                    normal:{
+                        label:{show:false}
+                    },
+                    emphasis: {
+                        label:{position:'top'}
+                    }
+                },
+                data : [
+                    {name:'河北蠡县',value:1655}
+                ]
+            }
+        },
+        {
+            name: '河北蠡县To常州',
+            type: 'map',
+            mapType: 'none',
+            data:[],
+            markLine : {//根据出发的线路更新显示效果
+                smooth:true,
+                effect : {//显示的效果设置
+                    show: true,
+                    scaleSize: 1,//线粗
+                    period: 15, //线闪的频率，越大显示越慢
+                    color: '#fff',
+                    shadowBlur: 10
+                },
+                itemStyle : {
+                    normal: {
+                        borderWidth:1,
+                        lineStyle: {
+                            type: 'solid',
+                            shadowBlur: 10
+                        }
+                    }
+                },
+                data : [
+                    [{name:'河北蠡县'}, {name:'常州',value:1657}]
+                ]
+            },
+            markPoint : {//根据出发的线路更新显示效果
+                symbol:'emptyCircle',
+                symbolSize : function (v){
+                    return 2.5
+                },
+                effect : {
+                    show: true,
+                    shadowBlur : 0
+                },
+                itemStyle:{
+                    normal:{
+                        label:{show:false}
+                    },
+                    emphasis: {
+                        label:{position:'top'}
+                    }
+                },
+                data : [
+                    {name:'常州',value:1657}
+                ]
+            }
+        },
+		{
+            name: '常州To宜兴',
+            type: 'map',
+            mapType: 'none',
+            data:[],
+            markLine : {//根据珠海站出发的线路更新显示效果
+                smooth:true,
+                effect : {//显示的效果设置
+                    show: true,
+                    scaleSize: 1,//线粗
+                    period: 100, //线闪的频率，越大显示越慢
+                    color: '#fff',
+                    shadowBlur: 10
+                },
+                itemStyle : {
+                    normal: {
+                        borderWidth:1,
+                        lineStyle: {
+                            type: 'solid',
+                            shadowBlur: 10
+                        }
+                    }
+                },
+                data : [
+                    [{name:'常州'}, {name:'宜兴',value:1659}]
+                ]
+            },
+            markPoint : {//根据出发的线路更新显示效果
+                symbol:'emptyCircle',
+                symbolSize : function (v){
+                    return 2.5
+                },
+                effect : {
+                    show: true,
+                    shadowBlur : 0
+                },
+                itemStyle:{
+                    normal:{
+                        label:{show:false}
+                    },
+                    emphasis: {
+                        label:{position:'top'}
+                    }
+                },
+                data : [
+                    {name:'宜兴',value:1659}
+                ]
+            }
+        },
+		{
+            name: '宜兴To延平',
+            type: 'map',
+            mapType: 'none',
+            data:[],
+            markLine : {//根据出发的线路更新显示效果
+                smooth:true,
+                effect : {//显示的效果设置
+                    show: true,
+                    scaleSize: 1,//线粗
+                    period: 40, //线闪的频率，越大显示越慢
+                    color: '#fff',
+                    shadowBlur: 10
+                },
+                itemStyle : {
+                    normal: {
+                        borderWidth:1,
+                        lineStyle: {
+                            type: 'solid',
+                            shadowBlur: 10
+                        }
+                    }
+                },
+                data : [
+                    [{name:'宜兴'}, {name:'延平',value:1665}]
+                ]
+            },
+            markPoint : {//根据出发的线路更新显示效果
+                symbol:'emptyCircle',
+                symbolSize : function (v){
+                    return 2
+                },
+                effect : {
+                    show: true,
+                    shadowBlur : 0
+                },
+                itemStyle:{
+                    normal:{
+                        label:{show:false}
+                    },
+                    emphasis: {
+                        label:{position:'top'}
+                    }
+                },
+                data : [
+                    {name:'延平',value:1665}
+                ]
+            }
+        },
+		{
+            name: '延平To桂林桥渡',
+            type: 'map',
+            mapType: 'none',
+            data:[],
+            markLine : {//根据出发的线路更新显示效果
+                smooth:true,
+                effect : {//显示的效果设置
+                    show: true,
+                    scaleSize: 1,//线粗
+                    period: 40, //线闪的频率，越大显示越慢
+                    color: '#fff',
+                    shadowBlur: 10
+                },
+                itemStyle : {
+                    normal: {
+                        borderWidth:1,
+                        lineStyle: {
+                            type: 'solid',
+                            shadowBlur: 10
+                        }
+                    }
+                },
+                data : [
+                    [{name:'延平'}, {name:'桂林桥渡',value:1668}]
+                ]
+            },
+            markPoint : {//根据出发的线路更新显示效果
+                symbol:'emptyCircle',
+                symbolSize : function (v){
+                    return 6
+                },
+                effect : {
+                    show: true,
+                    shadowBlur : 0
+                },
+                itemStyle:{
+                    normal:{
+                        label:{show:false}
+                    },
+                    emphasis: {
+                        label:{position:'top'}
+                    }
+                },
+                data : [
+                    {name:'桂林桥渡',value:1668}
+                ]
+            }
+        }
+    ]
+};                   
+overlay.setOption(option);
+</script>
+</body>
+</html>
